@@ -1,7 +1,8 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
+import api from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 import { cn } from '../lib/utils';
 
@@ -18,7 +19,7 @@ export default function Login() {
 
     const onSubmit = async (data: LoginFormInputs) => {
         try {
-            const response = await axios.post('http://localhost:3000/api/auth/login', data);
+            const response = await api.post('/api/auth/login', data);
             login(response.data.token, response.data.user);
             navigate('/');
         } catch (err) {

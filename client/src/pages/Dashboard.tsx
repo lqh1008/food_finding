@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 import type { FoodEntry } from '../types';
 import { Link } from 'react-router-dom';
@@ -13,7 +13,7 @@ export default function Dashboard() {
     useEffect(() => {
         const fetchEntries = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/api/entries', {
+                const response = await api.get('/api/entries', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setEntries(response.data);

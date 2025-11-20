@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 import { cn } from '../lib/utils';
 
@@ -23,7 +23,7 @@ export default function CreateEntry() {
     const onSubmit = async (data: CreateEntryFormInputs) => {
         setSubmitting(true);
         try {
-            await axios.post('http://localhost:3000/api/entries', data, {
+            await api.post('/api/entries', data, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             navigate('/');
@@ -106,7 +106,7 @@ export default function CreateEntry() {
                                             const formData = new FormData();
                                             formData.append('image', file);
                                             try {
-                                                const res = await axios.post('http://localhost:3000/api/upload', formData, {
+                                                const res = await api.post('/api/upload', formData, {
                                                     headers: {
                                                         'Content-Type': 'multipart/form-data',
                                                         Authorization: `Bearer ${token}`,

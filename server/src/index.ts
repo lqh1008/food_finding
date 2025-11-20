@@ -8,7 +8,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+        'https://food-finding.vercel.app', // TODO: Replace with your actual Vercel domain
+    ],
+    credentials: true,
+}));
 app.use(express.json());
 
 import foodEntryRoutes from './routes/foodEntryRoutes';
