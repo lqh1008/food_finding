@@ -1,4 +1,4 @@
-import React, { createContext, useState, useRef } from 'react';
+import React, { createContext, useState, useRef, useEffect } from 'react';
 import type { AxiosRequestConfig } from 'axios';
 
 interface User {
@@ -17,7 +17,8 @@ interface PendingRequest {
 interface AuthContextType {
     user: User | null;
     token: string | null;
-    login: (token: string, user: User) => void;
+    refreshToken: string | null;
+    login: (token: string, refreshToken: string, user: User) => void;
     logout: () => void;
     isAuthenticated: boolean;
     // 登录对话框相关
@@ -39,25 +40,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return storedUser ? JSON.parse(storedUser) : null;
     });
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+    const [refreshToken, setRefreshToken] = useState<string | null>(localStorage.getItem('refreshToken'));
     const [showLoginModal, setShowLoginModal] = useState(false);
 
     // 使用ref存储待重试的请求队列，避免重新渲染
     const pendingRequestsRef = useRef<PendingRequest[]>([]);
 
-    const login = (newToken: string, newUser: User) => {
+    const login = (newToken: string, newRefreshToken: string, newUser: User) => {
         setToken(newToken);
+        setRefreshToken(newRefreshToken);
         setUser(newUser);
         localStorage.setItem('token', newToken);
+        localStorage.setItem('refreshToken', newRefreshToken);
         localStorage.setItem('user', JSON.stringify(newUser));
     };
 
     const logout = () => {
         setToken(null);
+        setRefreshToken(null);
         setUser(null);
         localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
         clearPendingRequests();
     };
+
+    useEffect(() => {
+        const handleTokensUpdated = (event: CustomEvent) => {
+            const { accessToken, refreshToken: newRefreshToken } = event.detail;
+            setToken(accessToken);
+            setRefreshToken(newRefreshToken);
+            localStorage.setItem('token', accessToken);
+            localStorage.setItem('refreshToken', newRefreshToken);
+        };
+
+        window.addEventListener('tokens-updated', handleTokensUpdated as EventListener);
+
+        return () => {
+            window.removeEventListener('tokens-updated', handleTokensUpdated as EventListener);
+        };
+    }, []);
 
     // 打开登录对话框
     const openLoginModal = () => {
@@ -103,6 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             value={{
                 user,
                 token,
+                refreshToken,
                 login,
                 logout,
                 isAuthenticated: !!token,
