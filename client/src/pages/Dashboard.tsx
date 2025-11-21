@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import type { FoodEntry } from '../types';
 import { Link } from 'react-router-dom';
 import { Plus, MapPin, Star } from 'lucide-react';
+import { Card, CardBody, CardFooter, Image, Button, Chip } from "@heroui/react";
 
 export default function Dashboard() {
     const { token, user } = useAuth();
@@ -34,14 +35,28 @@ export default function Dashboard() {
         <div className="min-h-screen bg-gray-100">
             <header className="bg-white shadow">
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                    <h1 className="text-3xl font-bold text-gray-900">Welcome{user?.name ? `, ${user.name}` : ''}</h1>
-                    <Link
-                        to="/create-entry"
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
-                    >
-                        <Plus className="h-5 w-5 mr-2" />
-                        Log Food
-                    </Link>
+                    <h1 className="text-3xl font-bold text-gray-900">
+                        {user ? `Welcome, ${user.name}` : 'Food Finding'}
+                    </h1>
+                    <div className="flex items-center space-x-4">
+                        {!user && (
+                            <Button
+                                onPress={() => window.dispatchEvent(new CustomEvent('show-login-modal'))}
+                                variant="bordered"
+                                color="primary"
+                            >
+                                Login
+                            </Button>
+                        )}
+                        <Button
+                            as={Link}
+                            to="/create-entry"
+                            color="primary"
+                            startContent={<Plus className="h-5 w-5" />}
+                        >
+                            Log Food
+                        </Button>
+                    </div>
                 </div>
             </header>
             <main>
@@ -53,24 +68,36 @@ export default function Dashboard() {
                     ) : (
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                             {entries.map((entry) => (
-                                <div key={entry.id} className="bg-white overflow-hidden shadow rounded-lg">
-                                    {entry.imageUrl && (
-                                        <img className="h-48 w-full object-cover" src={entry.imageUrl} alt={entry.title} />
-                                    )}
-                                    <div className="px-4 py-5 sm:p-6">
-                                        <div className="flex justify-between items-start">
+                                <Card key={entry.id} className="py-4" shadow="sm">
+                                    <CardBody className="overflow-visible py-2">
+                                        {entry.imageUrl && (
+                                            <Image
+                                                alt={entry.title}
+                                                className="object-cover rounded-xl"
+                                                src={entry.imageUrl}
+                                                width={400}
+                                                height={200}
+                                            />
+                                        )}
+                                        <div className="pt-4 flex justify-between items-start">
                                             <h3 className="text-lg leading-6 font-medium text-gray-900">{entry.title}</h3>
-                                            <div className="flex items-center bg-yellow-100 px-2 py-1 rounded-full">
-                                                <Star className="h-4 w-4 text-yellow-500 mr-1" fill="currentColor" />
-                                                <span className="text-sm font-medium text-yellow-800">{entry.rating}</span>
-                                            </div>
+                                            <Chip
+                                                startContent={<Star className="h-3 w-3" fill="currentColor" />}
+                                                variant="flat"
+                                                color="warning"
+                                                size="sm"
+                                            >
+                                                {entry.rating}
+                                            </Chip>
                                         </div>
                                         {entry.description && (
                                             <p className="mt-2 text-sm text-gray-500 line-clamp-2">{entry.description}</p>
                                         )}
-                                        <div className="mt-4 flex items-center text-sm text-gray-500">
+                                    </CardBody>
+                                    <CardFooter className="pb-0 pt-2 px-4 flex-col items-start">
+                                        <div className="flex items-center text-sm text-gray-500 w-full justify-between">
                                             {entry.location && (
-                                                <div className="flex items-center mr-4">
+                                                <div className="flex items-center">
                                                     <MapPin className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
                                                     {entry.location}
                                                 </div>
@@ -79,8 +106,8 @@ export default function Dashboard() {
                                                 {new Date(entry.date).toLocaleDateString()}
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
+                                    </CardFooter>
+                                </Card>
                             ))}
                         </div>
                     )}

@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors({
     origin: [
-        'http://localhost:5173',
+        /^http:\/\/localhost:\d+$/,
         'https://food-finding-client.vercel.app', // TODO: Replace with your actual Vercel domain
     ],
     credentials: true,

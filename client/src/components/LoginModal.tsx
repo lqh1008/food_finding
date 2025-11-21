@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { useState } from 'react';
 import api from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Link } from "@heroui/react";
 
 interface LoginModalProps {
     isOpen: boolean;
@@ -20,11 +20,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // 如果未打开，不渲染
-    if (!isOpen) return null;
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
         setError('');
         setLoading(true);
 
@@ -57,80 +53,55 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     };
 
     return (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-            {/* 遮罩层 */}
-            <div
-                className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-                onClick={onClose}
-            />
-
-            {/* 对话框 */}
-            <div className="flex min-h-full items-center justify-center p-4">
-                <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-                    {/* 关闭按钮 */}
-                    <button
-                        onClick={onClose}
-                        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-                    >
-                        <X className="h-6 w-6" />
-                    </button>
-
-                    {/* 标题 */}
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                        需要登录
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-6">
-                        请登录以继续您的操作
-                    </p>
-
-                    {/* 登录表单 */}
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        {error && (
-                            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
-                                {error}
+        <Modal isOpen={isOpen} onClose={onClose} placement="center">
+            <ModalContent>
+                {(onClose) => (
+                    <>
+                        <ModalHeader className="flex flex-col gap-1">需要登录</ModalHeader>
+                        <ModalBody>
+                            <p className="text-sm text-gray-600 mb-4">
+                                请登录以继续您的操作
+                            </p>
+                            {error && (
+                                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
+                                    {error}
+                                </div>
+                            )}
+                            <div className="flex flex-col gap-4">
+                                <Input
+                                    label="邮箱"
+                                    placeholder="your@email.com"
+                                    type="email"
+                                    value={email}
+                                    onValueChange={setEmail}
+                                    variant="bordered"
+                                />
+                                <Input
+                                    label="密码"
+                                    placeholder="••••••••"
+                                    type="password"
+                                    value={password}
+                                    onValueChange={setPassword}
+                                    variant="bordered"
+                                />
                             </div>
-                        )}
-
-                        <div>
-                            <label htmlFor="modal-email" className="block text-sm font-medium text-gray-700">
-                                邮箱
-                            </label>
-                            <input
-                                id="modal-email"
-                                type="email"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                placeholder="your@email.com"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="modal-password" className="block text-sm font-medium text-gray-700">
-                                密码
-                            </label>
-                            <input
-                                id="modal-password"
-                                type="password"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                placeholder="••••••••"
-                            />
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {loading ? '登录中...' : '登录'}
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
+                        </ModalBody>
+                        <ModalFooter className="flex flex-col">
+                            <Button color="primary" onPress={handleSubmit} isLoading={loading} className="w-full">
+                                登录
+                            </Button>
+                            <div className="text-center mt-2">
+                                <p className="text-sm text-gray-600">
+                                    还没有账号？{' '}
+                                    <Link href="/register" size="sm" onPress={() => onClose()}>
+                                        立即注册
+                                    </Link>
+                                </p>
+                            </div>
+                        </ModalFooter>
+                    </>
+                )}
+            </ModalContent>
+        </Modal>
     );
 }
