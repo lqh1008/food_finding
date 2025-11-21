@@ -13,9 +13,8 @@ export default function Dashboard() {
     useEffect(() => {
         const fetchEntries = async () => {
             try {
-                const response = await api.get('/api/entries', {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                // 即使没有token也尝试请求，拦截器会处理401
+                const response = await api.get('/api/entries');
                 setEntries(response.data);
             } catch (error) {
                 console.error('Failed to fetch entries', error);
@@ -24,10 +23,8 @@ export default function Dashboard() {
             }
         };
 
-        if (token) {
-            fetchEntries();
-        }
-    }, [token]);
+        fetchEntries();
+    }, [token]); // token变化时重新获取
 
     if (loading) {
         return <div className="flex justify-center items-center h-screen">Loading...</div>;
@@ -37,7 +34,7 @@ export default function Dashboard() {
         <div className="min-h-screen bg-gray-100">
             <header className="bg-white shadow">
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                    <h1 className="text-3xl font-bold text-gray-900">Welcome, {user?.name}</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">Welcome{user?.name ? `, ${user.name}` : ''}</h1>
                     <Link
                         to="/create-entry"
                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"

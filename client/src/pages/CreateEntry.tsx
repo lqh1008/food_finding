@@ -2,7 +2,6 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
-import { useAuth } from '../hooks/useAuth';
 import { cn } from '../lib/utils';
 
 interface CreateEntryFormInputs {
@@ -16,20 +15,19 @@ interface CreateEntryFormInputs {
 
 export default function CreateEntry() {
     const { register, handleSubmit, setValue, formState: { errors } } = useForm<CreateEntryFormInputs>();
-    const { token } = useAuth();
     const navigate = useNavigate();
     const [submitting, setSubmitting] = React.useState(false);
 
     const onSubmit = async (data: CreateEntryFormInputs) => {
         setSubmitting(true);
         try {
-            await api.post('/api/entries', data, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            // 拦截器会自动添加token并处理401
+            await api.post('/api/entries', data);
             navigate('/');
         } catch (error) {
             console.error('Failed to create entry', error);
-            alert('Failed to create entry');
+            // 如果是401，拦截器会处理，这里不需要alert
+            // alert('Failed to create entry'); 
         } finally {
             setSubmitting(false);
         }
@@ -109,13 +107,11 @@ export default function CreateEntry() {
                                                 const res = await api.post('/api/upload', formData, {
                                                     headers: {
                                                         'Content-Type': 'multipart/form-data',
-                                                        Authorization: `Bearer ${token}`,
                                                     },
                                                 });
                                                 setValue('imageUrl', res.data.imageUrl);
                                             } catch (err) {
                                                 console.error('Upload failed', err);
-                                                alert('Upload failed');
                                             }
                                         }
                                     }}
