@@ -27,11 +27,13 @@ export default function Register() {
     const onSubmit = async (data: RegisterFormInputs) => {
         try {
             const response = await api.post('/api/auth/register', data);
-            login(response.data.token, response.data.user);
+            // 后端返回的是 accessToken 和 refreshToken，而不是 token
+            // Backend returns accessToken and refreshToken, not token
+            login(response.data.accessToken, response.data.refreshToken, response.data.user);
             navigate('/');
         } catch (err) {
             const error = err as AxiosError<{ message: string }>;
-            setError(error.response?.data?.message || 'Registration failed');
+            setError(error.response?.data?.message || '注册失败');
         }
     };
 

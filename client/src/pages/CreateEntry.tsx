@@ -14,8 +14,10 @@ interface CreateEntryInputs {
     rating: number;
 }
 
+import LocationPicker from '../components/LocationPicker';
+
 export default function CreateEntry() {
-    const { register, handleSubmit, formState: { errors } } = useForm<CreateEntryInputs>();
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm<CreateEntryInputs>();
     const navigate = useNavigate();
     const { } = useAuth();
     const [error, setError] = React.useState('');
@@ -76,12 +78,11 @@ export default function CreateEntry() {
                                 {...register('imageUrl')}
                             />
 
-                            <Input
-                                label="Location"
-                                placeholder="Restaurant or place"
-                                variant="bordered"
-                                {...register('location')}
+                            <LocationPicker
+                                onLocationSelect={(location) => setValue('location', location)}
                             />
+                            {/* Hidden input to register location field for validation if needed, though setValue handles the data */}
+                            <input type="hidden" {...register('location')} />
 
                             <div className="grid grid-cols-2 gap-4">
                                 <Input
